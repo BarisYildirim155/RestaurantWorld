@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Add Menu Item - Restaurant World{% endblock %}
+{% block content %}
+
+<a href="{{ url_for('restaurant.detail_restaurant', num=restaurant_num) }}" class="back-link">← Back to {{ restaurant.name }}</a>
+
+<div style="max-width:680px; margin:0 auto;">
+    <h2 class="page-title" style="margin-bottom:1.5rem;">Add Menu Item</h2>
+
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+
+    <form method="POST" novalidate>
+
+        <!-- Basic info -->
+        <div class="section-card" style="margin-bottom:1.2rem;">
+            <div class="section-header">
+                <span class="section-title">🍽 Item Details</span>
+            </div>
+
+            <div class="form-group">
+                <label>Item Name *</label>
+                <input type="text" name="name" placeholder="e.g. Margherita Pizza" autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="2" placeholder="Short description of the dish..."></textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select name="category">
+                        <option value="">Select category...</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price Range *</label>
+                    <select name="price_range">
+                        {% for value, label in price_ranges %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Exact Price (€) *</label>
+                <input type="number" name="price" step="0.01" min="0" placeholder="0.00">
+            </div>
+        </div>
+
+        <!-- Extra info -->
+        <div class="section-card" style="margin-bottom:1.2rem;">
+            <div class="section-header">
+                <span class="section-title">📋 Additional Info</span>
+            </div>
+
+            <div class="form-group">
+                <label>Ingredients</label>
+                <input type="text" name="ingredients" placeholder="e.g. Tomato, mozzarella, basil, olive oil">
+            </div>
+
+            <div class="form-group">
+                <label>Allergens</label>
+                <input type="text" name="allergens" placeholder="e.g. Gluten, dairy, nuts">
+            </div>
+        </div>
+
+        <!-- Price range legend -->
+        <div class="section-card" style="margin-bottom:1.5rem; padding:1rem 1.5rem;">
+            <p style="font-size:0.85rem; color:var(--gray); margin:0;">
+                <strong>Price range guide:</strong> &nbsp;
+                <span style="color:var(--green); font-weight:700;">$</span> = under €10 &nbsp;|&nbsp;
+                <span style="color:var(--gold); font-weight:700;">$$</span> = €10–25 &nbsp;|&nbsp;
+                <span style="color:var(--red); font-weight:700;">$$$</span> = over €25
+            </p>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add to Menu</button>
+            <a href="{{ url_for('restaurant.detail_restaurant', num=restaurant_num) }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

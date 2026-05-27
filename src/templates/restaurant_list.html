@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Restaurants - Restaurant World{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<div class="hero">
+    <div class="hero-content">
+        <h1>Discover Great Restaurants</h1>
+        <p>Browse menus, read reviews, and share your experience</p>
+        {% if not current_user.is_authenticated %}
+        <a href="{{ url_for('user.register') }}" class="btn btn-primary">Get Started</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_restaurants }}</div>
+        <div class="stat-label">🍴 Restaurants</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ total_reviews }}</div>
+        <div class="stat-label">⭐ Reviews</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ cuisines | length }}</div>
+        <div class="stat-label">🌍 Cuisines</div>
+    </div>
+</div>
+
+<!-- Header + filters -->
+<div class="page-header">
+    <h2 class="page-title">All Restaurants</h2>
+    <div style="display:flex; gap:0.7rem; align-items:center; flex-wrap:wrap;">
+        <form method="GET" action="{{ url_for('restaurant.list_restaurants') }}" class="filter-bar">
+            <select name="cuisine" onchange="this.form.submit()">
+                <option value="">All Cuisines</option>
+                {% for c in cuisines %}
+                <option value="{{ c }}" {{ 'selected' if selected_cuisine == c }}>{{ c }}</option>
+                {% endfor %}
+            </select>
+            <select name="sort" onchange="this.form.submit()">
+                <option value="newest"  {{ 'selected' if sort == 'newest' }}>Newest</option>
+                <option value="rating"  {{ 'selected' if sort == 'rating' }}>Top Rated</option>
+                <option value="name"    {{ 'selected' if sort == 'name' }}>A–Z</option>
+            </select>
+        </form>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('restaurant.new_restaurant') }}" class="btn btn-primary">+ Add Restaurant</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if restaurants %}
+<div class="card-grid">
+    {% for r, avg in restaurants %}
+    <div class="card">
+        <img class="card-img"
+             src="{{ url_for('static', filename='images/r' ~ ((r.__oid__.num | mod(6)) + 1) ~ '.jpg') }}"
+             alt="{{ r.name }}">
+        <div class="card-body">
+            {% if current_user.is_authenticated and current_user.username == r.owner_username %}
+            <div style="display:flex; align-items:center; gap:0.4rem; background:#1C1C1C; border-radius:6px; padding:0.35rem 0.7rem; margin-bottom:0.7rem; border-left:3px solid var(--gold);">
+                <span>👑</span>
+                <span style="color:var(--gold); font-size:0.8rem; font-weight:700;">Your Restaurant</span>
+            </div>
+            {% endif %}
+            <div class="card-title"><a href="{{ url_for('restaurant.detail_restaurant', num=r.__oid__.num) }}">{{ r.name }}</a></div>
+            <div class="card-cuisine">{{ r.cuisine_type }}
+                {% if avg %}&nbsp;<span class="badge-rating">★ {{ avg }}</span>{% endif %}
+            </div>
+            <div class="card-desc">{{ r.description or "No description available." }}</div>
+            <div class="card-footer">
+                <a href="{{ url_for('restaurant.detail_restaurant', num=r.__oid__.num) }}" class="btn btn-outline">View Menu & Reviews</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+    <div class="empty-icon">🍽</div>
+    <p>No restaurants found.</p>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('restaurant.new_restaurant') }}" class="btn btn-primary" style="margin-top:1rem;">Add the first one!</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }} - Restaurant World{% endblock %}
+
+{% block content %}
+<article style="max-width: 500px; margin: 4rem auto; text-align: center;">
+    <h2>{{ code }}</h2>
+    <p>{{ message }}</p>
+    <a href="{{ url_for('restaurant.list_restaurants') }}" role="button">Back to Home</a>
+</article>
+{% endblock %}

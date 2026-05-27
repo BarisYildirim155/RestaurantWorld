@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Reserve a Table - {{ restaurant.name }}{% endblock %}
+{% block content %}
+
+<a href="{{ url_for('restaurant.detail_restaurant', num=restaurant_num) }}" class="back-link">← Back to {{ restaurant.name }}</a>
+
+<div style="max-width:520px; margin:0 auto;">
+    <h2 class="page-title" style="margin-bottom:1.5rem;">🗓 Reserve a Table</h2>
+    <p style="color:var(--gray); margin-bottom:1.5rem;">at <strong style="color:var(--cream);">{{ restaurant.name }}</strong></p>
+
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+
+    <form method="POST" novalidate>
+
+        <div class="section-card" style="margin-bottom:1.2rem;">
+
+            <div class="form-group">
+                <label>Date *</label>
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:0.5rem;">
+                    <select name="month">
+                        <option value="">Month</option>
+                        {% for num, name in months %}
+                        <option value="{{ '%02d' % num }}" {{ 'selected' if selected_month == '%02d' % num }}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="day">
+                        <option value="">Day</option>
+                        {% for d in range(1, 32) %}
+                        <option value="{{ '%02d' % d }}" {{ 'selected' if selected_day == '%02d' % d }}>{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Time *</label>
+                <select name="time">
+                    <option value="">Select a time...</option>
+                    {% for slot in time_slots %}
+                    <option value="{{ slot }}">{{ slot }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Number of Guests *</label>
+                <input type="number" name="guest_count" min="1" max="20" placeholder="e.g. 2">
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Confirm Reservation</button>
+            <a href="{{ url_for('restaurant.detail_restaurant', num=restaurant_num) }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

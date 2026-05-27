@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}{{ restaurant.name }} - Restaurant World{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('restaurant.list_restaurants') }}" class="back-link">← Back to Restaurants</a>
+
+{% if current_user.is_authenticated and current_user.username == restaurant.owner_username %}
+<div style="background: linear-gradient(135deg, #1C1C1C, #3D1A0A); border-radius: 10px; padding: 0.8rem 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem; border-left: 4px solid var(--gold);">
+    <span style="font-size: 1.4rem;">👑</span>
+    <div>
+        <span style="color: var(--gold); font-weight: 700; font-size: 0.95rem;">This is your restaurant</span>
+        <span style="color: #AAAAAA; font-size: 0.85rem; margin-left: 0.8rem;">Only you can edit the menu and details.</span>
+    </div>
+</div>
+{% endif %}
+
+<!-- Detail header -->
+<div class="detail-header">
+    <img class="detail-hero"
+         src="{{ url_for('static', filename='images/r' ~ ((num | mod(6)) + 1) ~ '.jpg') }}"
+         alt="{{ restaurant.name }}">
+    <div class="detail-body">
+        <div>
+            <div class="detail-title">
+                {{ restaurant.name }}
+                {% if avg_rating %}<span class="badge-rating" style="font-size:1rem;">★ {{ avg_rating }}/5</span>{% endif %}
+            </div>
+            <div class="detail-cuisine">🍴 {{ restaurant.cuisine_type }}</div>
+            <div class="detail-desc">{{ restaurant.description or "" }}</div>
+        </div>
+        {% if current_user.is_authenticated and current_user.username == restaurant.owner_username %}
+        <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+            <a href="{{ url_for('restaurant.edit_restaurant', num=num) }}" class="btn btn-ghost btn-sm">Edit</a>
+            <form method="POST" action="{{ url_for('restaurant.delete_restaurant', num=num) }}"
+                  onsubmit="return confirm('Delete this restaurant and all its data?')">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Menu + Reviews -->
+<div class="two-col">
+
+    <!-- MENU -->
+    <div class="section-card">
+        <div class="section-header">
+            <span class="section-title">🍽 Menu</span>
+            {% if current_user.is_authenticated and current_user.username == restaurant.owner_username %}
+            <a href="{{ url_for('menuitem.add_menu_item', restaurant_num=num) }}" class="btn btn-primary btn-sm">+ Add Item</a>
+            {% endif %}
+        </div>
+
+        {% if menu_items %}
+            {% set cats = menu_items | map(attribute='category') | unique | list %}
+            {% for cat in cats %}
+            <div class="menu-category">{{ cat }}</div>
+            {% for item in menu_items if item.category == cat %}
+            <div class="menu-item">
+                <div style="flex:1;">
+                    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                        <span class="menu-item-name">{{ item.name }}</span>
+                        {% set pr = item.price_range if item.price_range is defined else '$' %}
+                        <span style="font-weight:700; font-size:0.85rem;
+                            color:{% if pr == '$' %}#2D6A4F{% elif pr == '$$' %}#F4A261{% else %}#C8102E{% endif %};">
+                            {{ pr }}
+                        </span>
+                    </div>
+                    {% if item.description %}<div class="menu-item-desc">{{ item.description }}</div>{% endif %}
+                    {% set ing = item.ingredients if item.ingredients is defined else '' %}
+                    {% set alg = item.allergens if item.allergens is defined else '' %}
+                    {% if ing %}<div class="menu-item-desc">🌿 {{ ing }}</div>{% endif %}
+                    {% if alg %}<div class="menu-item-desc" style="color:#C8102E;">⚠️ {{ alg }}</div>{% endif %}
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
+                    <span class="menu-item-price">{{ "%.2f"|format(item.price) }} €</span>
+                    {% if current_user.is_authenticated and current_user.username == restaurant.owner_username %}
+                    <form method="POST" action="{{ url_for('menuitem.delete_menu_item', num=item.__oid__.num) }}">
+                        <button type="submit" class="btn btn-danger btn-sm">✕</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        {% else %}
+        <div class="empty">
+            <div class="empty-icon">🍴</div>
+            <p>No menu items yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="section-card">
+        <div class="section-header">
+            <span class="section-title">⭐ Reviews</span>
+            {% if current_user.is_authenticated and current_user.username != restaurant.owner_username %}
+                {% set user_review = reviews | selectattr('username', 'equalto', current_user.username) | list | first %}
+                {% if user_review %}
+                <a href="{{ url_for('review.edit_review', num=user_review.__oid__.num) }}" class="btn btn-ghost btn-sm">✏ Edit Your Review</a>
+                {% else %}
+                <a href="{{ url_for('review.add_review', restaurant_num=num) }}" class="btn btn-primary btn-sm">+ Review</a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% if reviews %}
+        {% for rv in reviews %}
+        <div class="review-item">
+            <div class="review-header">
+                <span class="review-author">{{ rv.username }}</span>
+                <span class="stars">{{ "★" * rv.rating }}{{ "☆" * (5 - rv.rating) }}</span>
+            </div>
+            <div class="review-comment">{{ rv.comment }}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="review-date">{{ rv.date }}</span>
+                {% if current_user.is_authenticated and current_user.username == rv.username %}
+                <form method="POST" action="{{ url_for('review.delete_review', num=rv.__oid__.num) }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty">
+            <div class="empty-icon">💬</div>
+            <p>No reviews yet. Be the first!</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- RESERVATIONS -->
+{% if current_user.is_authenticated %}
+<div class="section-card" style="margin-top:1.5rem;">
+    <div class="section-header">
+        <span class="section-title">🗓 Reservations</span>
+        {% if current_user.username != restaurant.owner_username %}
+        <a href="{{ url_for('reservation.add_reservation', restaurant_num=num) }}" class="btn btn-primary btn-sm">+ Reserve a Table</a>
+        {% endif %}
+    </div>
+
+    {% if current_user.username == restaurant.owner_username %}
+        <!-- Owner sees all reservations -->
+        {% if reservations %}
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+                <thead>
+                    <tr style="border-bottom:1px solid #2A2A2A; color:var(--gray); text-align:left;">
+                        <th style="padding:0.6rem 0.8rem;">Guest</th>
+                        <th style="padding:0.6rem 0.8rem;">Date</th>
+                        <th style="padding:0.6rem 0.8rem;">Time</th>
+                        <th style="padding:0.6rem 0.8rem;">Guests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for res in reservations %}
+                <tr style="border-bottom:1px solid #1E1E1E;">
+                    <td style="padding:0.6rem 0.8rem; color:var(--cream);">{{ res.username }}</td>
+                    <td style="padding:0.6rem 0.8rem;">{{ res.date }}</td>
+                    <td style="padding:0.6rem 0.8rem;">{{ res.time }}</td>
+                    <td style="padding:0.6rem 0.8rem;">{{ res.guest_count }} person{{ 's' if res.guest_count > 1 }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty">
+            <div class="empty-icon">🗓</div>
+            <p>No reservations yet.</p>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Regular user sees only their own reservations -->
+        {% set my_reservations = reservations | selectattr('username', 'equalto', current_user.username) | list %}
+        {% if my_reservations %}
+        {% for res in my_reservations %}
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:#1A1A1A; border-radius:8px; margin-bottom:0.6rem; border-left:3px solid var(--gold);">
+            <div>
+                <span style="color:var(--cream); font-weight:600;">{{ res.date }} at {{ res.time }}</span>
+                <span style="color:var(--gray); font-size:0.85rem; margin-left:0.8rem;">{{ res.guest_count }} guest{{ 's' if res.guest_count > 1 }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('reservation.delete_reservation', num=res.__oid__.num) }}"
+                  onsubmit="return confirm('Cancel this reservation?')">
+                <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+            </form>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty" style="padding:1.5rem;">
+            <p style="color:var(--gray); margin:0;">You have no reservations here yet.</p>
+        </div>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endif %}
+
+{% endblock %}

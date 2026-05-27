@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Restaurant" if restaurant else "New Restaurant" }} - Restaurant World{% endblock %}
+{% block content %}
+<div class="form-card">
+    <div class="form-title">{{ "Edit Restaurant ✏️" if restaurant else "Add New Restaurant 🍴" }}</div>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+    <form method="POST" novalidate>
+        <div class="form-group">
+            <label>Restaurant Name *</label>
+            <input type="text" name="name" value="{{ restaurant.name if restaurant else '' }}" placeholder="e.g. La Bella Italia" autofocus>
+        </div>
+        <div class="form-group">
+            <label>Cuisine Type *</label>
+            <input type="text" name="cuisine_type" value="{{ restaurant.cuisine_type if restaurant else '' }}" placeholder="Italian, Turkish, Japanese...">
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="3" placeholder="Tell us about this restaurant...">{{ restaurant.description if restaurant else '' }}</textarea>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ "Save Changes" if restaurant else "Add Restaurant" }}</button>
+            <a href="{{ url_for('restaurant.detail_restaurant', num=num) if restaurant else url_for('restaurant.list_restaurants') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+# Documentation & diagrams (not part of source code)
+doc/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Redis data
+dump.rdb
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp / lock files
+~$*
+*.swp

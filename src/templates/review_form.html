@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} Review - Restaurant World{% endblock %}
+{% block content %}
+<div class="form-card">
+    <div class="form-title">
+        {{ restaurant.name }} — {{ 'Edit Your Review' if editing else 'Add Review' }} ⭐
+    </div>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+    <form method="POST" novalidate>
+        <div class="form-group">
+            <label>Rating *</label>
+            <select name="rating">
+                <option value="">Select a rating...</option>
+                <option value="5" {{ 'selected' if review and review.rating == 5 }}>★★★★★ — Excellent</option>
+                <option value="4" {{ 'selected' if review and review.rating == 4 }}>★★★★☆ — Very Good</option>
+                <option value="3" {{ 'selected' if review and review.rating == 3 }}>★★★☆☆ — Good</option>
+                <option value="2" {{ 'selected' if review and review.rating == 2 }}>★★☆☆☆ — Average</option>
+                <option value="1" {{ 'selected' if review and review.rating == 1 }}>★☆☆☆☆ — Poor</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Your Review *</label>
+            <textarea name="comment" rows="4" placeholder="Share your experience...">{{ review.comment if review else '' }}</textarea>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {{ 'Update Review' if editing else 'Submit Review' }}
+            </button>
+            <a href="{{ url_for('restaurant.detail_restaurant', num=restaurant_num) }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}My Restaurants - Restaurant World{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">My Restaurants</h2>
+    <a href="{{ url_for('restaurant.new_restaurant') }}" class="btn btn-primary">+ Add Restaurant</a>
+</div>
+
+{% if restaurants %}
+<div class="card-grid">
+    {% for r in restaurants %}
+    <div class="card">
+        <img class="card-img"
+             src="{{ url_for('static', filename='images/r' ~ ((r.__oid__.num | mod(6)) + 1) ~ '.jpg') }}"
+             alt="{{ r.name }}">
+        <div class="card-body">
+            <div class="card-title"><a href="{{ url_for('restaurant.detail_restaurant', num=r.__oid__.num) }}">{{ r.name }}</a></div>
+            <div class="card-cuisine">{{ r.cuisine_type }}</div>
+            <div class="card-desc">{{ r.description or "No description." }}</div>
+            <div class="card-footer">
+                <a href="{{ url_for('restaurant.detail_restaurant', num=r.__oid__.num) }}" class="btn btn-outline btn-sm">View</a>
+                <a href="{{ url_for('restaurant.edit_restaurant', num=r.__oid__.num) }}" class="btn btn-ghost btn-sm">Edit</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+    <div class="empty-icon">🍴</div>
+    <p>You haven't added any restaurants yet.</p>
+    <a href="{{ url_for('restaurant.new_restaurant') }}" class="btn btn-primary" style="margin-top:1rem;">Add your first restaurant</a>
+</div>
+{% endif %}
+{% endblock %}
