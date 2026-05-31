@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Add Menu Item - Restaurant World{% endblock %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} Menu Item - Restaurant World{% endblock %}
 {% block content %}
 
 <a href="{{ url_for('restaurant.detail_restaurant', num=restaurant_num) }}" class="back-link">← Back to {{ restaurant.name }}</a>
 
 <div style="max-width:680px; margin:0 auto;">
-    <h2 class="page-title" style="margin-bottom:1.5rem;">Add Menu Item</h2>
+    <h2 class="page-title" style="margin-bottom:1.5rem;">{{ 'Edit' if editing else 'Add' }} Menu Item</h2>
 
     {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
 
@@ -19,12 +19,13 @@
 
             <div class="form-group">
                 <label>Item Name *</label>
-                <input type="text" name="name" placeholder="e.g. Margherita Pizza" autofocus>
+                <input type="text" name="name" placeholder="e.g. Margherita Pizza" autofocus
+                       value="{{ item.name if editing else '' }}">
             </div>
 
             <div class="form-group">
                 <label>Description</label>
-                <textarea name="description" rows="2" placeholder="Short description of the dish..."></textarea>
+                <textarea name="description" rows="2" placeholder="Short description of the dish...">{{ item.description if editing else '' }}</textarea>
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
@@ -33,7 +34,7 @@
                     <select name="category">
                         <option value="">Select category...</option>
                         {% for cat in categories %}
-                        <option value="{{ cat }}">{{ cat }}</option>
+                        <option value="{{ cat }}" {{ 'selected' if editing and item.category == cat }}>{{ cat }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -41,7 +42,7 @@
                     <label>Price Range *</label>
                     <select name="price_range">
                         {% for value, label in price_ranges %}
-                        <option value="{{ value }}">{{ label }}</option>
+                        <option value="{{ value }}" {{ 'selected' if editing and item.price_range == value }}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -49,7 +50,8 @@
 
             <div class="form-group">
                 <label>Exact Price (€) *</label>
-                <input type="number" name="price" step="0.01" min="0" placeholder="0.00">
+                <input type="number" name="price" step="0.01" min="0" placeholder="0.00"
+                       value="{{ '%.2f'|format(item.price) if editing else '' }}">
             </div>
         </div>
 
@@ -61,12 +63,14 @@
 
             <div class="form-group">
                 <label>Ingredients</label>
-                <input type="text" name="ingredients" placeholder="e.g. Tomato, mozzarella, basil, olive oil">
+                <input type="text" name="ingredients" placeholder="e.g. Tomato, mozzarella, basil, olive oil"
+                       value="{{ item.ingredients if editing else '' }}">
             </div>
 
             <div class="form-group">
                 <label>Allergens</label>
-                <input type="text" name="allergens" placeholder="e.g. Gluten, dairy, nuts">
+                <input type="text" name="allergens" placeholder="e.g. Gluten, dairy, nuts"
+                       value="{{ item.allergens if editing else '' }}">
             </div>
         </div>
 
@@ -81,7 +85,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Add to Menu</button>
+            <button type="submit" class="btn btn-primary">{{ 'Save Changes' if editing else 'Add to Menu' }}</button>
             <a href="{{ url_for('restaurant.detail_restaurant', num=restaurant_num) }}" class="btn btn-ghost">Cancel</a>
         </div>
     </form>

@@ -76,6 +76,7 @@
                 <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
                     <span class="menu-item-price">{{ "%.2f"|format(item.price) }} €</span>
                     {% if current_user.is_authenticated and current_user.username == restaurant.owner_username %}
+                    <a href="{{ url_for('menuitem.edit_menu_item', num=item.__oid__.num) }}" class="btn btn-ghost btn-sm">✏</a>
                     <form method="POST" action="{{ url_for('menuitem.delete_menu_item', num=item.__oid__.num) }}">
                         <button type="submit" class="btn btn-danger btn-sm">✕</button>
                     </form>
